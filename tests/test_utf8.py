@@ -13,6 +13,8 @@ MIN_CONTINUATION = 128
 MAX_LEADING = 247
 MIN_LEADING = 240
 
+def _scan_range(minfb, maxfb):
+    return (exceptions, except_count, decoded_count)
 
 def test_scan_leading_f0_byte():
     low_fb = FourByte(MIN_LEADING,
