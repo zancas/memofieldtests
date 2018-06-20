@@ -35,6 +35,7 @@ def _scan_range(minfb, maxfb):
     
     return total_scans, scan_summary
 
+
 def test_scan_leading_f0_byte_range():
     minfb = FourByte(MIN_LEADING,
                      MIN_CONTINUATION,
@@ -71,13 +72,70 @@ def test_scan_leading_f0_byte_range():
                                          continuation3=191)
 
 
-def test_scan_leading_f1_byte_range():
-    minfb = FourByte(MIN_LEADING+1,
+def test_scan_leading_f1_to_f3_byte_range():
+    for increment in range(1,4):
+        minfb = FourByte(MIN_LEADING+increment,
+                         MIN_CONTINUATION,
+                         MIN_CONTINUATION,
+                         MIN_CONTINUATION)
+        maxfb = FourByte(MIN_LEADING+increment,
+                         MAX_CONTINUATION,
+                         MAX_CONTINUATION,
+                         MAX_CONTINUATION)
+        total_scans, scan_summary = _scan_range(minfb, maxfb)
+        assert total_scans == 2**18
+        assert len(scan_summary["decoded_fbs"]) == total_scans
+        assert scan_summary["exception_fbs"] == {}
+
+
+def test_scan_leading_f4_byte_range():
+    minfb = FourByte(MIN_LEADING+4,
                      MIN_CONTINUATION,
                      MIN_CONTINUATION,
                      MIN_CONTINUATION)
-    maxfb = FourByte(MIN_LEADING+1,
+    maxfb = FourByte(MIN_LEADING+4,
                      MAX_CONTINUATION,
                      MAX_CONTINUATION,
                      MAX_CONTINUATION)
     total_scans, scan_summary = _scan_range(minfb, maxfb)
+    assert total_scans == 2**18
+    assert min(scan_summary["decoded_fbs"]) == FourByte(leading=244,
+                                                        continuation1=128,
+                                                        continuation2=128,
+                                                        continuation3=128)
+    assert max(scan_summary["decoded_fbs"]) == FourByte(leading=244,
+                                                        continuation1=143,
+                                                        continuation2=191,
+                                                        continuation3=191)
+    OBSERVED_EXCEPTION_MESSAGES =\
+        [x for x in scan_summary["exception_fbs"].keys()]
+    EXPECTED_EXCEPTION_MESSAGE = "'utf-8' codec can't decode byte 0xf4 in " +\
+                                 "position 0: invalid continuation byte"
+    EXPECTED_EXCEPTION_MESSAGES = [EXPECTED_EXCEPTION_MESSAGE]
+    assert EXPECTED_EXCEPTION_MESSAGES == OBSERVED_EXCEPTION_MESSAGES
+    undecodedfbs = scan_summary["exception_fbs"][EXPECTED_EXCEPTION_MESSAGE]
+    assert min(undecodedfbs) == FourByte(leading=244,
+                                         continuation1=144,
+                                         continuation2=128,
+                                         continuation3=128)
+    assert max(undecodedfbs) == FourByte(leading=244,
+                                         continuation1=191,
+                                         continuation2=191,
+                                         continuation3=191)
+
+
+def test_scan_leading_f5_to_f7_byte_range():
+    for increment in range(5,8):
+        minfb = FourByte(MIN_LEADING+increment,
+                         MIN_CONTINUATION,
+                         MIN_CONTINUATION,
+                         MIN_CONTINUATION)
+        maxfb = FourByte(MIN_LEADING+increment,
+                         MAX_CONTINUATION,
+                         MAX_CONTINUATION,
+                         MAX_CONTINUATION)
+        total_scans, scan_summary = _scan_range(minfb, maxfb)
+        assert total_scans == 2**18
+        assert len(scan_summary["decoded_fbs"]) == total_scans
+        assert scan_summary["exception_fbs"] == {}
+
