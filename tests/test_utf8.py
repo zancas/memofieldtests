@@ -136,6 +136,21 @@ def test_scan_leading_f5_to_f7_byte_range():
                          MAX_CONTINUATION)
         total_scans, scan_summary = _scan_range(minfb, maxfb)
         assert total_scans == 2**18
-        assert len(scan_summary["decoded_fbs"]) == total_scans
-        assert scan_summary["exception_fbs"] == {}
+        OBSERVED_EXCEPTION_MESSAGES =\
+            [x for x in scan_summary["exception_fbs"].keys()]
+        EXPECTED_EXCEPTION_MESSAGE = "'utf-8' codec can't decode byte " +\
+                                     f"0xf{increment} in position 0: " +\
+                                     "invalid start byte"
+        EXPECTED_EXCEPTION_MESSAGES = [EXPECTED_EXCEPTION_MESSAGE]
+        assert EXPECTED_EXCEPTION_MESSAGES == OBSERVED_EXCEPTION_MESSAGES
 
+        undecodedfbs =\
+            scan_summary["exception_fbs"][EXPECTED_EXCEPTION_MESSAGE]
+        assert min(undecodedfbs) == FourByte(leading=MIN_LEADING+increment,
+                                             continuation1=128,
+                                             continuation2=128,
+                                             continuation3=128)
+        assert max(undecodedfbs) == FourByte(leading=MIN_LEADING+increment,
+                                             continuation1=191,
+                                             continuation2=191,
+                                             continuation3=191)
