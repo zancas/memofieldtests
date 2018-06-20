@@ -45,6 +45,14 @@ def test_scan_leading_f0_byte_range():
                      MAX_CONTINUATION,
                      MAX_CONTINUATION)
     total_scans, scan_summary = _scan_range(minfb, maxfb)
+    assert min(scan_summary["decoded_fbs"]) == FourByte(leading=240,
+                                                        continuation1=144,
+                                                        continuation2=128,
+                                                        continuation3=128)
+    assert max(scan_summary["decoded_fbs"]) == FourByte(leading=240,
+                                                        continuation1=191,
+                                                        continuation2=191,
+                                                        continuation3=191)
     EXPECTED_EXCEPTION_MESSAGE = "'utf-8' codec can't decode byte 0xf0 in " +\
                                  "position 0: invalid continuation byte"
     EXPECTED_EXCEPTION_MESSAGES = [EXPECTED_EXCEPTION_MESSAGE]
@@ -53,8 +61,14 @@ def test_scan_leading_f0_byte_range():
     assert total_scans == 2**18
     assert EXPECTED_EXCEPTION_MESSAGES == OBSERVED_EXCEPTION_MESSAGES
     undecodedfbs = scan_summary["exception_fbs"][EXPECTED_EXCEPTION_MESSAGE]
-    for x in map(lambda x: x.continuation1, undecodedfbs):
-        pass
+    assert min(undecodedfbs) == FourByte(leading=240,
+                                         continuation1=128,
+                                         continuation2=128,
+                                         continuation3=128)
+    assert max(undecodedfbs) == FourByte(leading=240,
+                                         continuation1=143,
+                                         continuation2=191,
+                                         continuation3=191)
 
 def test_scan_leading_f0_byte():
     invalid_continuation_byte = 0
