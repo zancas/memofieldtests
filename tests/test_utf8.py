@@ -15,6 +15,7 @@
    to worry about, this being the very reason the incompatible change
    was deemed acceptable.
 
+
 I wonder if there're interesting tests to write here!"""
 import pytest 
 from collections import namedtuple
@@ -106,6 +107,24 @@ def test_scan_leading_f1_to_f3_byte_range():
 
 
 def test_scan_leading_f4_byte_range():
+    """Attempt to decode each 4-octet value where the leading byte is 0xf4.
+
+    This test scans from (244, 128, 128, 128) to (244, 143, 191, 191) recording
+    successes and faliures.
+    Failures are sorted by unique exception messages.
+    The assertions validate:
+
+     (0) the total number of decoding operations attempted
+     (1) the range of successes
+     (2) the range(s) of failures according to type
+
+    The primary rationale was to demonstrate the actual behavior of Python3.6's
+    UTF-8 decoder, while I was reading:
+       https://en.wikipedia.org/wiki/UTF-8#Description
+    As is made clear by rfc3629:
+       https://tools.ietf.org/html/rfc3629#section-3
+    The largest code point that UTF-8 can represent is 0x10FFFF.
+    """
     minfb = FourByte(MIN_LEADING+4,
                      MIN_CONTINUATION,
                      MIN_CONTINUATION,
@@ -131,6 +150,7 @@ def test_scan_leading_f4_byte_range():
     EXPECTED_EXCEPTION_MESSAGES = [EXPECTED_EXCEPTION_MESSAGE]
     assert EXPECTED_EXCEPTION_MESSAGES == OBSERVED_EXCEPTION_MESSAGES
     undecodedfbs = scan_summary["exception_fbs"][EXPECTED_EXCEPTION_MESSAGE]
+    # The below values are too large to be represented in UTF-8.
     assert min(undecodedfbs) == FourByte(leading=244,
                                          continuation1=144,
                                          continuation2=128,
