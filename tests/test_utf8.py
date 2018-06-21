@@ -1,3 +1,21 @@
+# https://tools.ietf.org/html/rfc3629
+# https://github.com/zcash/zcash/issues/1849
+# https://github.com/zcash/zips/pull/105
+# NOTE: Test overlong sequences (e.g. C0 80 and D0 80 80)
+# What about BOMs?
+# What about 5- and 6-byte sequences?
+# What about The Same Thing encodings (e.g. against z-board.net)?
+"""From rfc3629:
+   Now the "Korean mess" (ISO/IEC 10646 amendment 5) is an incompatible
+   change, in principle contradicting the appropriateness of a version
+   independent MIME charset label as described above.  But the
+   compatibility problem can only appear with data containing Korean
+   Hangul characters encoded according to Unicode 1.1 (or equivalently
+   ISO/IEC 10646 before amendment 5), and there is arguably no such data
+   to worry about, this being the very reason the incompatible change
+   was deemed acceptable.
+
+I wonder if there're interesting tests to write here!"""
 import pytest 
 from collections import namedtuple
 
