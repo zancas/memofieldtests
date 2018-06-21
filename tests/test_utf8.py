@@ -3,7 +3,7 @@
 # https://github.com/zcash/zips/pull/105
 # NOTE: Test overlong sequences (e.g. C0 80 and D0 80 80)
 # What about BOMs?
-# What about 5- and 6-byte sequences?
+# What about 5- and 6-byte sequences? e.g. leading: 1111110x ?
 # What about The Same Thing encodings (e.g. against z-board.net)?
 """From rfc3629:
    Now the "Korean mess" (ISO/IEC 10646 amendment 5) is an incompatible
@@ -25,7 +25,6 @@ FourByte = namedtuple('FourByte', ('leading',
                                    'continuation3'))
 
 
-VALID_FOURBYTE = '\U0002070e'.encode("utf-8")
 MAX_CONTINUATION = 191
 MIN_CONTINUATION = 128
 MAX_LEADING = 247
